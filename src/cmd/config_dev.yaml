@@ -1,0 +1,21 @@
+# mysql 数据库连接示例
+mysql:
+  host: 192.168.1.99
+  port: 13301
+  dbname: biz_db
+  username: root
+  password: dev123456
+  maxconn: 100
+  minconn: 10
+  maxlife: 108000 #30*60*60 # 30 minutes
+
+# redis 连接示例
+redis:
+  host: 112.124.47.77
+  port: 16379
+  password: 123456
+  db: 0 # 默认连接的db
+  pool_size: 10 # 连接池大小
+  min_idle_conns: 10 # 最小空闲连接数
+  max_retries: 3 # 最大重试次数
+  max_conn_age: 0  # 连接最大存活时间，0表示不过期

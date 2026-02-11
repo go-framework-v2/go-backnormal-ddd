@@ -1,0 +1,31 @@
+2026-02-11 15:47:10.154 INFO config/config.go:39> ++++++++++++++ config info begin: ++++++++++++++
+2026-02-11 15:47:10.155 INFO viper/baseConfig.go:77> --  {"name": "go-backnormal-ddd"}
+2026-02-11 15:47:10.155 INFO viper/baseConfig.go:78> --  {"port": 8091}
+2026-02-11 15:47:10.155 INFO viper/baseConfig.go:79> --  {"version": "1.2.0"}
+2026-02-11 15:47:10.155 INFO viper/baseConfig.go:80> --  {"env": "product"}
+2026-02-11 15:47:10.155 INFO viper/baseConfig.go:81> --  {"host": "192.168.1.99"}
+2026-02-11 15:47:10.155 INFO viper/baseConfig.go:82> --  {"work_path": "/Users/huanlema/Documents/Code_github/go-framework-v2/go-backnormal-ddd"}
+2026-02-11 15:47:10.155 INFO config/ginConfig.go:14> ------------ gin ------------
+2026-02-11 15:47:10.155 INFO config/ginConfig.go:15> --  {"release": true}
+2026-02-11 15:47:10.155 INFO config/logConfig.go:14> ------------ log ------------
+2026-02-11 15:47:10.155 INFO config/logConfig.go:15> --  {"root": "./log/"}
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:28> ------------ mysql ------------
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:29> --  {"host": "rm-bp1ec3mzh5md190s1do.mysql.rds.aliyuncs.com"}
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:30> --  {"port": 3306}
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:31> --  {"dbname": "business_db"}
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:32> --  {"username": "liuhua"}
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:34> --  {"maxconn": 100}
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:35> --  {"minconn": 10}
+2026-02-11 15:47:10.155 INFO config/mysqlConfig.go:36> --  {"maxlife": 108000}
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:28> ------------ redis ------------
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:29> --  {"host": ""}
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:30> --  {"port": 0}
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:32> --  {"db": 0}
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:33> --  {"pool_size": 0}
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:34> --  {"min_idle_conns": 0}
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:35> --  {"max_retries": 0}
+2026-02-11 15:47:10.155 INFO config/redisConfig.go:36> --  {"max_conn_age": 0}
+2026-02-11 15:47:10.155 INFO config/config.go:48> ++++++++++++++ config info end: ++++++++++++++
+2026-02-11 15:47:10.547 INFO res/res.go:68> ++++++++++++++ resource info begin: ++++++++++++++
+2026-02-11 15:47:10.547 INFO res/res.go:70> --  {"name": "res-MysqlDB"}
+2026-02-11 15:47:10.547 INFO res/res.go:72> ++++++++++++++ resource info end: ++++++++++++++

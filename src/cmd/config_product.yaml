@@ -1,0 +1,16 @@
+mysql:
+  host: rm-bp1ec3mzh5md190s1do.mysql.rds.aliyuncs.com
+  port: 3306
+  dbname: business_db
+  username: liuhua
+  password: liuhua@2024
+  maxconn: 100
+  minconn: 10
+  maxlife: 108000 #30*60*60 # 30 minutes
+
+mongodb:
+  host: 127.0.0.1
+  port: 27017
+  db: test_1029
+  username: appuser
+  password: app123

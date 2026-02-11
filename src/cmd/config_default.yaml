@@ -1,0 +1,21 @@
+project: 
+  name: go-backnormal-ddd   # 服务名称，与go.mod中的module名称一致
+  port: 8091   # 服务端口,web服务一般使用18xxx端口
+  version: 1.2.0   # 服务版本
+ 
+gin:
+  release: true  # 开发模式，便于调试
+
+log:
+  root: ./log/  # 日志文件存放目录
+
+# 默认MySQL配置（开发环境可被config_dev.yaml覆盖）
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  dbname: biz_db
+  username: root
+  password: ""
+  maxconn: 100
+  minconn: 10
+  maxlife: 108000
