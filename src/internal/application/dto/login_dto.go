@@ -6,18 +6,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// ============ 根据 projectId 查 App（DDD Demo） ============
-type GetAppByProjectIDReq struct {
-	ProjectId int32 `json:"projectId"`
-}
-
-type GetAppByProjectIDResp struct {
-	Id        int64  `json:"id"`
-	BundleId  string `json:"bundleId"`
-	AppName   string `json:"appName"`
-	ProjectId int32  `json:"projectId"`
-}
-
 // ============ 游客登录 请求和响应 ============
 type GuestLoginReq struct {
 	DeviceId    string `json:"deviceId"`

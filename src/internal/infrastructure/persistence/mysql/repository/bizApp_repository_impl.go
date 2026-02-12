@@ -32,6 +32,15 @@ func (r *BizAppRepositoryImpl) FindByProjectID(projectId int32) (*identity.BizAp
 	return r.toDomain(&po), nil
 }
 
+func (r *BizAppRepositoryImpl) Insert(b *identity.BizApp) error {
+	po := r.toPO(b)
+	err := r.db.Create(&po).Error
+	if err != nil {
+		return fmt.Errorf("insert bizApp: %w", err)
+	}
+	return nil
+}
+
 // 数据转换
 func (r *BizAppRepositoryImpl) toDomain(po *model.BizAppPO) *identity.BizApp {
 	id, _ := identity.NewBizAppID(po.Id)
