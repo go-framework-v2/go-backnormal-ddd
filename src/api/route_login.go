@@ -4,12 +4,15 @@ import (
 	"go-backnormal-ddd/src/internal/application/dto"
 	"go-backnormal-ddd/src/internal/application/service"
 	"go-backnormal-ddd/src/internal/infrastructure/persistence/mysql/repository"
+	"go-backnormal-ddd/src/middleware/ratelimit"
 	"go-backnormal-ddd/src/res"
 	"go-backnormal-ddd/src/tool"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+// 全局变量
 var loginService *service.LoginService
 
 func initLoginService() {
@@ -21,10 +24,14 @@ func initLoginService() {
 	)
 }
 
+// 登录接口限流 例如：每 IP 每分钟最多 30 次登录请求
+var loginLimiter = ratelimit.NewIPLimit(30, 1*time.Minute)
+
 func RouteLogin(r *gin.Engine) {
 	initLoginService()
 
 	loginGroup := r.Group("/user/login")
+	loginGroup.Use(loginLimiter.Middleware()) // 登录接口限流
 	{
 		loginGroup.POST("/guest", GuestLogin) // 以此为参考
 		loginGroup.POST("/wechat", nil)

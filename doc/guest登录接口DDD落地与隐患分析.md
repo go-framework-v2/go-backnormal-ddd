@@ -46,7 +46,7 @@ HTTP POST /user/login/guest
 ### 1.3 可以改进的 DDD 细节
 
 - **应用层依赖了具体实现**：若以后在应用层用 `db.Transaction` 包整段流程，需要把 `*gorm.DB` 或「事务运行器」注入到 Service；目前没有用外层事务，所以暂无此依赖。
-- **领域内双份模型**：`identity` 下既有 `user.go`（UserID、AuthType 类型）又有 `bizUser.go`（BizUserID、int8）。当前 guest 登录统一用 bizUser 一套，建议逐步收敛为一套领域模型，避免两套 RestoreUser/NewUserForCreate 长期并存。
+- **领域模型**：当前 `identity` 下仅有一套用户模型（`bizUser.go` + `bizUser_id.go`），无 `user.go`，不存在「两套 User 模型」问题。
 - **UpdateByFieldmap 在领域接口里**：用 `map[string]interface{}` 更新，领域层会暴露「按字段名更新」这种偏技术细节的契约；更符合 DDD 的写法是接口里只有 `Save(user *User)`，由领域对象承载要更新的语义，基础设施再决定更新哪些列。
 
 ---
@@ -138,7 +138,7 @@ HTTP POST /user/login/guest
 | 健壮性 | user 可能为 nil 未检查 | 低 | 显式判空返回 |
 | 安全 | JWT 密钥硬编码 | 高 | 配置化且生产强密钥 |
 | 安全 | 登录无限流 | 中 | 加限流/熔断 |
-| 结构 | 领域内 user / bizUser 两套模型 | 低 | 收敛为一套 |
+| 结构 | ~~领域内两套 User 模型~~（当前仅有一套 bizUser） | — | 不适用 |
 | 可测性 | 全局 loginService | 低 | 注入 Service 便于 mock |
 
 ---
