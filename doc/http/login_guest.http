@@ -1,0 +1,13 @@
+### 游客登录（用于限流测试：连续 Run 多次，第 31 次起应返回 code 429）
+POST http://127.0.0.1:8091/user/login/guest
+Content-Type: application/json
+projectId: 1
+
+{
+  "data": {
+    "deviceId": "rate-test-dev",
+    "oaid": "",
+    "model": "test",
+    "realChannel": "test"
+  }
+}
