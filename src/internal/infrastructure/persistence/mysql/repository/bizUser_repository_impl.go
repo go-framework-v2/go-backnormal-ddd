@@ -6,71 +6,65 @@ import (
 	"gorm.io/gorm"
 
 	"go-backnormal-ddd/src/cons"
-	"go-backnormal-ddd/src/internal/domain/identity"
+	"go-backnormal-ddd/src/internal/domain/identity/user"
 	"go-backnormal-ddd/src/internal/infrastructure/persistence/mysql/model"
 )
 
-// BizUserRepositoryImpl 用户仓储实现
+// BizUserRepositoryImpl biz_user 表仓储实现，实现领域 user.UserRepository
 type BizUserRepositoryImpl struct {
 	db *gorm.DB
 }
 
-// NewBizUserRepository 创建用户仓储
+// NewBizUserRepository 创建 biz_user 仓储
 func NewBizUserRepository(db *gorm.DB) *BizUserRepositoryImpl {
 	return &BizUserRepositoryImpl{db: db}
 }
 
-// FindByUk 根据唯一键 查询用户 存在直接返回，不存在插入再返回
-func (r *BizUserRepositoryImpl) FindByUk(appId int64, authType int8, oaid, deviceId string) (*identity.User, error) {
+// FindByUk 根据唯一键查询用户：存在则返回，不存在则插入再返回
+func (r *BizUserRepositoryImpl) FindByUk(appId int64, authType int8, oaid, deviceId string) (*user.User, error) {
 	if appId <= 0 {
-		return nil, fmt.Errorf("invalid app_id: %d", appId)
+		return nil, fmt.Errorf("app_id cannot be less than or equal to 0")
 	}
 	if oaid == "" && deviceId == "" {
 		return nil, fmt.Errorf("oaid and deviceId cannot both be empty")
 	}
-	// 1. 先查询是否存在
 	var po model.BizUserPO
-	preDb := r.db.Where("app_id =? AND auth_type =? AND is_valid =?", appId, authType, cons.IsValidYes)
+	preDb := r.db.Where("app_id = ? AND auth_type = ? AND is_valid = ?", appId, authType, cons.IsValidYes)
 	if oaid != "" {
-		preDb = preDb.Where("oaid =?", oaid)
+		preDb = preDb.Where("oaid = ?", oaid)
 	}
 	if deviceId != "" {
-		preDb = preDb.Where("device_id =?", deviceId)
+		preDb = preDb.Where("device_id = ?", deviceId)
 	}
 	err := preDb.First(&po).Error
-
-	if err == nil { // 2. 存在, 直接返回
+	if err == nil {
 		return r.toDomain(&po), nil
-	} else if err == gorm.ErrRecordNotFound { // 3. 不存在，则插入（使用当前 r.db，可为外层事务 tx）
-		po = r.toPO(identity.NewUserForCreate(appId, authType, oaid, deviceId))
-		if err = r.db.Create(&po).Error; err != nil {
-			return nil, fmt.Errorf("create user error: %v", err)
-		}
-		// 插入成功, 再次查询
-		err = r.db.Where("id = ?", po.Id).First(&po).Error
-		if err != nil {
-			return nil, fmt.Errorf("find user by id error: %v", err)
-		}
-		return r.toDomain(&po), nil
-	} else {
-		return nil, fmt.Errorf("find user by uk error: %v", err)
 	}
+	if err != gorm.ErrRecordNotFound {
+		return nil, fmt.Errorf("find biz_user by uk: %w", err)
+	}
+	po = r.toPO(user.NewUserForCreate(appId, authType, oaid, deviceId))
+	if err = r.db.Create(&po).Error; err != nil {
+		return nil, fmt.Errorf("create biz_user: %w", err)
+	}
+	if err = r.db.Where("id = ?", po.Id).First(&po).Error; err != nil {
+		return nil, fmt.Errorf("find biz_user by id: %w", err)
+	}
+	return r.toDomain(&po), nil
 }
 
-// UpdateByFieldmap 更新用户信息
-func (r *BizUserRepositoryImpl) UpdateByFieldmap(id identity.BizUserID, fieldmap map[string]interface{}) error {
-	po := model.BizUserPO{
-		Id: id.Value(),
-	}
+// UpdateByFieldmap 按字段映射更新 biz_user 表
+func (r *BizUserRepositoryImpl) UpdateByFieldmap(id user.UserID, fieldmap map[string]interface{}) error {
+	po := model.BizUserPO{Id: id.Value()}
 	if err := r.db.Model(&po).Updates(fieldmap).Error; err != nil {
-		return fmt.Errorf("update user by fieldmap error: %v", err)
+		return fmt.Errorf("update biz_user by fieldmap: %w", err)
 	}
 	return nil
 }
 
-func (r *BizUserRepositoryImpl) toDomain(po *model.BizUserPO) *identity.User {
-	id, _ := identity.NewBizUserID(po.Id)
-	return identity.RestoreUser(
+func (r *BizUserRepositoryImpl) toDomain(po *model.BizUserPO) *user.User {
+	id, _ := user.NewUserID(po.Id)
+	return user.RestoreUser(
 		id, po.AppId, po.AuthType,
 		po.Oaid, po.DeviceId,
 		po.WechatUserId, po.MobileUserId,
@@ -80,8 +74,8 @@ func (r *BizUserRepositoryImpl) toDomain(po *model.BizUserPO) *identity.User {
 	)
 }
 
-func (r *BizUserRepositoryImpl) toPO(u *identity.User) model.BizUserPO {
-	po := model.BizUserPO{
+func (r *BizUserRepositoryImpl) toPO(u *user.User) model.BizUserPO {
+	return model.BizUserPO{
 		Id:           u.ID().Value(),
 		AppId:        u.AppId(),
 		AuthType:     u.AuthType(),
@@ -101,6 +95,4 @@ func (r *BizUserRepositoryImpl) toPO(u *identity.User) model.BizUserPO {
 		UpdatedAt:    u.UpdatedAt(),
 		IsValid:      u.IsValid(),
 	}
-
-	return po
 }

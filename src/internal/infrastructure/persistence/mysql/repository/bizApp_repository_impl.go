@@ -5,54 +5,50 @@ import (
 
 	"gorm.io/gorm"
 
-	"go-backnormal-ddd/src/internal/domain/identity"
+	"go-backnormal-ddd/src/internal/domain/identity/app"
 	"go-backnormal-ddd/src/internal/infrastructure/persistence/mysql/model"
 )
 
-// BizAppRepositoryImpl BizApp仓储实现
+// BizAppRepositoryImpl biz_app 表仓储实现，实现领域 app.AppRepository（聚合根 App，微信配置作为值对象一并加载）
 type BizAppRepositoryImpl struct {
 	db *gorm.DB
 }
 
-// NewBizAppRepository 创建BizApp仓储
+// NewBizAppRepository 创建 biz_app 仓储
 func NewBizAppRepository(db *gorm.DB) *BizAppRepositoryImpl {
 	return &BizAppRepositoryImpl{db: db}
 }
 
-// 方法实现
-func (r *BizAppRepositoryImpl) FindByProjectID(projectId int32) (*identity.BizApp, error) {
+// FindByProjectID 按项目ID查询应用，并加载 biz_app_wechat_config 转为值对象
+func (r *BizAppRepositoryImpl) FindByProjectID(projectId int32) (*app.App, error) {
 	var po model.BizAppPO
-	err := r.db.Where("project_id = ?", projectId).First(&po).Error
-	if err == gorm.ErrRecordNotFound {
-		return nil, nil
+	if err := r.db.Where("project_id = ?", projectId).First(&po).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("find biz_app by project_id: %w", err)
 	}
-	if err != nil {
-		return nil, fmt.Errorf("find bizApp by project_id: %w", err)
+	id, _ := app.NewAppID(po.Id)
+	var wechatConfig *app.WechatPlatformConfig
+	var wechatPO model.BizAppWechatConfigPO
+	if err := r.db.Where("app_id = ?", po.Id).First(&wechatPO).Error; err == nil {
+		cfg, _ := app.NewWechatPlatformConfig(wechatPO.WechatAppId, wechatPO.WechatAppSecret)
+		wechatConfig = cfg
 	}
-	return r.toDomain(&po), nil
+	return app.RestoreApp(id, po.BundleId, po.AppName, po.ProjectId, po.CreatedAt, wechatConfig), nil
 }
 
-func (r *BizAppRepositoryImpl) Insert(b *identity.BizApp) error {
-	po := r.toPO(b)
-	err := r.db.Create(&po).Error
-	if err != nil {
-		return fmt.Errorf("insert bizApp: %w", err)
+// Insert 插入 biz_app 表（微信配置需单独维护 biz_app_wechat_config）
+func (r *BizAppRepositoryImpl) Insert(a *app.App) error {
+	po := model.BizAppPO{
+		Id:        a.ID().Value(),
+		BundleId:  a.BundleId(),
+		AppName:   a.AppName(),
+		ProjectId: a.ProjectId(),
+		CreatedAt: a.CreatedAt(),
+	}
+	if err := r.db.Create(&po).Error; err != nil {
+		return fmt.Errorf("insert biz_app: %w", err)
 	}
 	return nil
-}
-
-// 数据转换
-func (r *BizAppRepositoryImpl) toDomain(po *model.BizAppPO) *identity.BizApp {
-	id, _ := identity.NewBizAppID(po.Id)
-	return identity.RestoreBizApp(id, po.BundleId, po.AppName, po.ProjectId, po.CreatedAt)
-}
-
-func (r *BizAppRepositoryImpl) toPO(b *identity.BizApp) model.BizAppPO {
-	return model.BizAppPO{
-		Id:        b.ID().Value(),
-		BundleId:  b.BundleId(),
-		AppName:   b.AppName(),
-		ProjectId: b.ProjectId(),
-		CreatedAt: b.CreatedAt(),
-	}
 }

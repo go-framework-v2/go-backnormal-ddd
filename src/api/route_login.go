@@ -1,8 +1,8 @@
 package api
 
 import (
-	"go-backnormal-ddd/src/internal/application/dto"
-	"go-backnormal-ddd/src/internal/application/service"
+	"go-backnormal-ddd/src/internal/application/identity/dto"
+	"go-backnormal-ddd/src/internal/application/identity"
 	"go-backnormal-ddd/src/internal/infrastructure/persistence/mysql/repository"
 	"go-backnormal-ddd/src/middleware/ratelimit"
 	"go-backnormal-ddd/src/res"
