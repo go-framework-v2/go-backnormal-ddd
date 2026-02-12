@@ -1,7 +1,6 @@
 package identity
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -12,9 +11,6 @@ type BizAppID struct {
 
 // NewBizAppID 创建NewBizAppID
 func NewBizAppID(value int64) (BizAppID, error) {
-	if value < 10 || value > 9999999999999999 {
-		return BizAppID{}, fmt.Errorf("invalid biz app id: %d", value)
-	}
 	return BizAppID{value: value}, nil
 }
 

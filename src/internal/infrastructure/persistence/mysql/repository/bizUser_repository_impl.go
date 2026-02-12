@@ -22,6 +22,12 @@ func NewBizUserRepository(db *gorm.DB) *BizUserRepositoryImpl {
 
 // FindByUk 根据唯一键 查询用户 存在直接返回，不存在插入再返回
 func (r *BizUserRepositoryImpl) FindByUk(appId int64, authType int8, oaid, deviceId string) (*identity.User, error) {
+	if appId <= 0 {
+		return nil, fmt.Errorf("invalid app_id: %d", appId)
+	}
+	if oaid == "" && deviceId == "" {
+		return nil, fmt.Errorf("oaid and deviceId cannot both be empty")
+	}
 	// 1. 先查询是否存在
 	var po model.BizUserPO
 	preDb := r.db.Where("app_id =? AND auth_type =? AND is_valid =?", appId, authType, cons.IsValidYes)
